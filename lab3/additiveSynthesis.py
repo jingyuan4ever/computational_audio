@@ -8,7 +8,7 @@ from math import sin, pi
 numChannels = 1                      # mono
 sampleWidth = 2                      # in bytes, a 16-bit short
 sampleRate = 44100
-#MAX_AMP = 2**(8*sampleWidth - 1) - 1 #maximum amplitude is 2**15 - 1  = 32767
+#MAX_AMP = 2**(8*sampleWidth - 1) - 1 #maximum amplitude is 2**15 - 1  = 32767 
 
 # Take an array of shorts and write it out to a mono wave file
 
@@ -17,7 +17,7 @@ def writewav(fname, data, params):
         f.setparams(params)
         f.writeframes(data.tostring())
     print(fname + " written.")
-
+    
 
 def main():
 
@@ -26,7 +26,7 @@ def main():
     #timFileName = raw_input("Enter the name of the timbre .tim.txt file: ")
     #envFileName = raw_input("Enter the name of the envelope .env.txt file: ")
     outfileName = raw_input("Enter the name of the output .wav file: ")
-
+    
     timFileName = 'timbre.tim.txt'
     envFileName = 'sinusoid.env.txt'
 
@@ -50,20 +50,24 @@ def main():
 
     envFile = open(envFileName,"r")
     ampLeft = envFile.readline().split('\t')[1]
-    windowTime,ampRight = envFile.readline().split('\t')
+    line = envFile.readline()
+    windowTime,ampRight = line.split('\t')
     windowSize = int(sampleRate * float(windowTime))
 
     i = 0
-    while ('' != ampRight):
+    while (line):
         for j in range(0,windowSize):
             amp = (float(j) / windowSize) * int(ampRight) + (1 - (float(j) / windowSize)) * int(ampLeft)
             sample = 0
             for k in range(0,len(freq)):
-                sample += float(fact[k]) * amp * sin( 2 * pi * float(freq[k]) * (i+j) / sampleRate )
+                sample += float(fact[k]) * amp * sin( 2 * pi * float(freq[k]) * (i+j) / sampleRate ) 
             data.append( int( sample ) )
-
+        
+        i += windowSize
         ampLeft = ampRight
-        ampRight = envFile.readline().split('\t')[1]
+        line = envFile.readline()
+        if (line):
+            ampRight = envFile.readline().split('\t')[1]
 
     params = [numChannels, sampleWidth, sampleRate , len(data), "NONE", None]
     writewav(outfileName, data, params)
