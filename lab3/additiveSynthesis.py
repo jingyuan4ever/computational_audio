@@ -49,13 +49,14 @@ def main():
     timFile.close()
 
     envFile = open(envFileName,"r")
-    ampLeft = envFile.readline().split('\t')[1]
+    ampLeft = envFile.readline().rstrip().split('\t')[1]
     line = envFile.readline()
-    windowTime,ampRight = line.split('\t')
+    windowTime,ampRight = line.rstrip().split('\t')
     windowSize = int(sampleRate * float(windowTime))
 
     i = 0
     while (line):
+        ampRight = line.rstrip().split('\t')[1]
         for j in range(0,windowSize):
             amp = (float(j) / windowSize) * int(ampRight) + (1 - (float(j) / windowSize)) * int(ampLeft)
             sample = 0
@@ -66,8 +67,7 @@ def main():
         i += windowSize
         ampLeft = ampRight
         line = envFile.readline()
-        if (line):
-            ampRight = envFile.readline().split('\t')[1]
+
 
     params = [numChannels, sampleWidth, sampleRate , len(data), "NONE", None]
     writewav(outfileName, data, params)
